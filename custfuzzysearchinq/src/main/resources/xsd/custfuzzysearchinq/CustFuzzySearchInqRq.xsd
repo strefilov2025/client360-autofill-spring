@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2018 rel. 2 sp1 (x64) (http://www.altova.com) by OKovalev (MTS Bank) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
+		   attributeFormDefault="unqualified">
+	<xs:include schemaLocation="!Include/FDX.xsd"/>
+	<xs:include schemaLocation="Common.xsd"/>
+	<xs:element name="FDX">
+		<xs:annotation>
+			<xs:documentation>CustFuzzySearchInqRq</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ServerInfo"/>
+				<xs:element name="BankSvcRq">
+					<xs:complexType>
+						<xs:all>
+							<xs:element name="CustInfo" type="CustInfoType"/>
+							<xs:element ref="Channel" minOccurs="0"/>
+							<xs:element ref="SubChannel" minOccurs="0"/>
+							<xs:element name="MinMatchScope" minOccurs="0">
+								<xs:annotation>
+									<xs:documentation>Минимальный коэффициент соответствия</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+						</xs:all>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

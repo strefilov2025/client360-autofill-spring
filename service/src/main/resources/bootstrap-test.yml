@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: autocomplete
+  cloud:
+    consul:
+      host: consul-ump-test.mbrd.ru
+      port: 8081
+      config:
+        prefix: ump/client360
+        acl-token: 74a0daec-abcd-ff9e-ec9e-6c17b94ca44a
+        format: yaml
+        data-key: application
+        watch:
+          enabled: false
+    vault:
+      fail-fast: true
+      authentication: APPROLE
+      uri: http://vault-ump-test.mbrd.ru:8081/v1
+      app-role:
+        role-id: f24c33af-d108-9dc8-79fa-2bec81f83d34
+        secret-id: 6ace30e0-35ad-b1bb-84d3-a2fd4f362061
+      kv:
+        backend: client360
+        default-context: client360-autocomplete
+

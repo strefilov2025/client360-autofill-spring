@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+
+    <artifactId>client360-autocomplete-common</artifactId>
+    <version>1.2.0</version>
+    <packaging>pom</packaging>
+
+    <name>autocomplete</name>
+    <description>autocomplete project</description>
+
+    <parent>
+        <groupId>ru.mtsbank</groupId>
+        <artifactId>mtsbank-boot-parent</artifactId>
+        <version>4.0.0</version>
+        <relativePath/>
+    </parent>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <java.version>11</java.version>
+    </properties>
+
+
+	<modules>
+        <module>customer</module>
+        <module>custfuzzysearchinq</module>
+        <module>mtsb</module>
+		<module>service</module>
+	</modules>
+
+
+   <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+	<repositories>
+        <repository>
+            <id>nexus</id>
+            <url>http://qcm-nexus.mbrd.ru:80/repository/ump-java-common</url>
+        </repository>
+        <repository>
+            <id>nexus-repositories</id>
+            <url>https://qcm-nexus.mbrd.ru/repository/maven-group-dev/</url>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+          <id>central</id>
+          <url>https://repo1.maven.org/maven2/</url>
+          <releases>
+            <enabled>true</enabled>
+            <updatePolicy>always</updatePolicy>
+          </releases>
+        </pluginRepository>
+        <pluginRepository>
+          <id>nexus-repositories</id>
+          <url>https://qcm-nexus.mbrd.ru/repository/maven-group-dev/</url>
+          <releases>
+            <enabled>true</enabled>
+            <updatePolicy>always</updatePolicy>
+          </releases>
+        </pluginRepository>
+        <pluginRepository>
+          <id>ump-java-common</id>
+          <url>https://qcm-nexus.mbrd.ru/repository/ump-java-common/</url>
+          <releases>
+            <enabled>true</enabled>
+            <updatePolicy>always</updatePolicy>
+          </releases>
+        </pluginRepository>
+      </pluginRepositories>
+</project>

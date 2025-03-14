@@ -1,0 +1,131 @@
+trace:
+  mode: agent
+logging:
+  level:
+    root: INFO
+    # ru.mtsbank.lib.logging.model.strategy: DEBUG
+    #ru.mtsbank: trace
+    #org.springframework.cache: trace
+spring:
+  cache:
+    # Установка типа кэша = redis. В приложении есть конфигурация CacheConfiguration, которая завязана на этот параметр.
+    # В случае установки другого значения (в идеале none), кэш будет отключен совсем. Подробности в CacheConfiguration.
+    type: redis
+    cache-names: user_client360:customer
+    redis:
+      # Время жизни кэша в миллисекундах. В данном случае - 30 секунд.
+      time-to-live: 30000
+  redis:
+    # cluster:
+    #   nodes: localhost:6379,localhost:6379,localhost:6379
+    #   max-redirects: 3
+    host: localhost
+    port: 6379
+    # Настройки имени пользователя и пароля.
+    # Для того, чтобы использовать данный функционал, требуется Redis версии 6+.
+    # Для создания пользователя требуется в redis-cli выполнить следующую команду:
+    # ACL SETUSER my_custom_user on allkeys >abc777 +get +set +info +ping
+    # Данная команда создаёт пользователя с именем my_custom_user, паролем abc777 и правами на операции:
+    # get; set; info; ping.
+    #   username: h
+    password: 1234567890
+    # Таймаут подключения к Redis. К данной настройке нужно относиться со всей серьёзностью, т.к в случае установки
+    # большого значения может получиться так, что поток длительное время будет ожидать подключения, что может привести
+    # к просадкам производительности работы функционала в случае, если Redis будет недоступен.
+    timeout: 100
+    use-key-prefix: true
+    # Настройки пула подключений (connection pool) jedis. Не является обязательным. Требуется в случае высокой нагрузки
+    # на приложение для обеспечения минимизации потребления памяти и увеличения производительности при работе с
+    # подключениями. Настраивать в соответствии с нагрузкой на приложение (ожидаемый RPS).
+    jedis:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 2
+mtsbank:
+  custom:
+    # если hashCode % 100/percent == 0 мы возращаем не найден это для статистики . если false то это отключано . контрольная группа в серверах МДМ
+    skip: true
+    percent: 5
+  app:
+    name: client360-autocomplete
+    time-zone: UTC
+
+    info:
+      description: Приложение для автозаполнения данных для формы клиента
+      owner: client360 team
+  tracer:
+    tracing:
+      api-patterns: ${mtsbank.app.name}/api/v\d.\d/
+      header-names: x-request-id
+    log:
+      request:
+        headers:
+          enabled: true
+      response:
+        body:
+          chunking:
+            #Данный функционал нужно включать обдуманно, по умолчанию отключен
+            enabled: false
+  grpc:
+    customer:
+      enabled: true
+      host: customer-grpc.customer-domain.ump-test.mbrd.ru
+      port: 8091
+      security-type: tls_insecure
+      timeout: 10000
+      connect-timeout: 10000
+  mtsb:
+    url: https://02d17514-726e-48ee-8da6-4206510c5e40.mock.pstmn.io
+mq:
+  sender: client360-autocomplete
+  info: http://mq-gateway-info.integration.ump-test.mbrd.ru:8090/v1/messages
+  connect-timeout: 30000
+  read-timeout: 30000
+  intergation-timeout: 35000
+  pool-max-per-route: 80
+  pool-max-total: 80
+  connection-ttl: 590000
+clients:
+  logged-service:
+    url: http://localhost:8080/logged-service-name/v1
+springdoc:
+  api-docs:
+    path: /${mtsbank.app.name}/swagger-ui/swagger.json #Путь к API документации в формате JSON
+  swagger-ui:
+    path: /${mtsbank.app.name}/swagger-ui/ #Путь к Swagger UI (интерфейс)
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true #Включены ли Health пробы
+  health:
+    livenessstate:
+      enabled: true #Включена ли live проба
+    readinessstate:
+      enabled: true #Включена ли read проба
+  endpoints:
+    web:
+      exposure:
+        include: loggers, health, metrics, prometheus #Список отдаваемых эндпоинтов
+      path-mapping:
+        metrics: testmetrics #URL, по которому будут доступны метрики актуатора
+        prometheus: metrics #URL, по которому будут доступны метрики прометея
+      base-path: / #Базовый путь
+  metrics:
+    distribution:
+      percentiles-histogram:
+        http:
+          server:
+            requests: false #Отключение передачи метрик по гистограмме запросов к http-серверу
+      percentiles:
+        http:
+          server:
+            requests: 0.5,0.95,0.99 #Percentiles метрики
+      slo:
+        http:
+          server:
+            requests: 1ms,5ms,10ms,50ms,100ms,200ms,400ms,500ms,750ms,1s,2s,5s,10s,30s,60s #Временные метрики
+    tags:
+      application: ${mtsbank.app.name} #Тэг с имененем приложения
+

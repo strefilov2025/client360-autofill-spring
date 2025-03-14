@@ -1,0 +1,48 @@
+server:
+  port: 8080
+logging:
+  level:
+    root: INFO
+spring:
+  cache:
+    type: NONE
+mtsbank:
+  app:
+    name: client360-autocomplete
+    time-zone: UTC
+
+    info:
+      description: Приложение для автозаполнения данных для формы клиента
+      owner: client360 team
+  tracer:
+    tracing:
+      api-patterns: ${mtsbank.app.name}/api/v\d.\d/
+    log:
+      request:
+        headers:
+          enabled: true
+      response:
+        body:
+          chunking:
+            enabled: true
+
+  grpc:
+    customer:
+      enabled: true
+      host: customer-grpc.customer-domain.ump-test.mbrd.ru
+      port: 8091
+      security-type: tls_insecure
+      timeout: 10000
+      connect-timeout: 10000
+  mtsb:
+    url: https://02d17514-726e-48ee-8da6-4206510c5e40.mock.pstmn.io
+mq:
+  sender: client360-autocomplete
+  info: http://mq-gateway-info.integration.ump-test.mbrd.ru:8090/v1/messages
+  connect-timeout: 30000
+  read-timeout: 30000
+  intergation-timeout: 35000
+  pool-max-per-route: 80
+  pool-max-total: 80
+  connection-ttl: 590000
+

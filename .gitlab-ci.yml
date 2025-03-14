@@ -1,0 +1,201 @@
+stages:
+  - build
+  - test
+  - package_jar
+  - package_docker
+  - scan
+  - deploy
+  - job_deploy
+
+variables:
+  http_proxy: "http://prx-srv.mbrd.ru:3128"
+  https_proxy: "http://prx-srv.mbrd.ru:3128"
+  no_proxy: "localhost,127.0.0.1,.mbrd.ru,.mtsbank.ru"
+  MAVEN_OPTS: "-Dmaven.repo.local=./.m2/repository -Dhttp.nonProxyHosts='localhost|*.mbrd.ru|*.mtsbank.ru' -Dhttp.proxyHost=prx-srv.mbrd.ru -Dhttp.proxyPort=3128 -Dhttps.proxyHost=prx-srv.mbrd.ru -Dhttps.proxyPort=3128 -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true -Dmaven.wagon.http.ssl.ignore.validity.dates=true"
+
+build_step:
+  stage: build
+  image: ${CI_BUILD_DOCKER_IMAGE}
+  before_script:
+    - |
+        chart_file="$PWD/helm/Chart.yaml"
+        TAG=$(awk '/^version/ {print$2}' "$chart_file" )
+        echo $TAG
+        APP_VERSION=${TAG}_$CI_COMMIT_SHA
+        echo APP_VERSION: $APP_VERSION
+  script:
+    - env
+    - mvn compile -Dapp_version=$APP_VERSION -Dmaven.repo.local=./.m2/repository -Dhttp.nonProxyHosts='localhost|*.mbrd.ru|*.mtsbank.ru' -Dhttp.proxyHost=prx-srv.mbrd.ru -Dhttp.proxyPort=3128 -Dhttps.proxyHost=prx-srv.mbrd.ru -Dhttps.proxyPort=3128 -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true -Dmaven.wagon.http.ssl.ignore.validity.dates=true
+  cache:
+    paths:
+      - ./target
+      - ./.m2
+  only:
+    - /feature/SWDDEV-.*/
+    - develop
+    - master
+
+test_step:
+  stage: test
+  image: ${CI_BUILD_DOCKER_IMAGE}
+  script:
+    - mvn test
+  cache:
+    paths:
+      - ./target
+      - ./.m2
+  only:
+    - /feature/SWDDEV-.*/
+    - develop
+    - master
+
+package_step:
+  stage: package_jar
+  image: ${CI_BUILD_DOCKER_IMAGE}
+  script:
+    - mvn package -Dmaven.test.skip=true
+  artifacts:
+    paths:
+      - service/target/*.jar
+  cache:
+    policy: pull
+    paths:
+      - ./target
+      - ./service
+      - ./.m2
+  only:
+    - /feature/SWDDEV-.*/
+    - develop
+    - master
+
+build_image:
+  stage: package_docker
+  image: ${CI_DOCKER_IMG_BUILD_STG}
+  script:
+        - export ENV="dev"
+        - sh $PWD/helm/build.sh
+  artifacts:
+    expire_in: 9 mos
+    paths:
+      - helm/Chart.yaml
+      - helm/values.yaml
+      - helm/deploy.sh
+    reports:
+      dotenv: build_image.env
+  only:
+    - /feature/SWDDEV-.*/
+    - develop
+    - master
+
+.scan_image:
+  image:
+    name: harbor-ump-prod.mbrd.ru/library/aquasec/trivy:latest
+    entrypoint: [""]
+  stage: scan
+  before_script:
+  script:
+    - export TRIVY_USERNAME="$CI_REGISTRY_USER"
+    - export TRIVY_PASSWORD="$CI_REGISTRY_PWD"
+    - trivy --download-db-only --no-progress --cache-dir .trivycache/
+    - |
+      trivy --exit-code 0 --cache-dir .trivycache/ --no-progress \
+      --output "$CI_PROJECT_DIR/report-$CI_PROJECT_NAME.txt" "$CI_IMAGE_NAME:$VERSION"
+    - time trivy --exit-code 0 --cache-dir .trivycache/ --no-progress "$CI_IMAGE_NAME:$VERSION"
+  dependencies:
+      - build_image
+  artifacts:
+    paths:
+      - "${CI_PROJECT_DIR}/*.txt"
+  only:
+    - /feature/SWDDEV-.*/
+    - develop
+    - master
+
+.scan_code:
+  image:
+    name: ${CI_SONARQUBE_IMAGE}
+    entrypoint: [""]
+  stage: scan
+  variables:
+    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"
+    GIT_DEPTH: "0"
+  cache:
+    policy: pull
+    paths:
+      - .sonar/cache
+      - ./target
+      - ./.m2
+  script:
+    - export BROWSERSLIST_IGNORE_OLD_DATA=true
+    - cat /usr/local/share/ca-certificates/mtsbank-ca.cer >> /etc/ssl/certs/ca-certificates.crt
+    - sonar-scanner -Dsonar.java.binaries=target/classes/* -Dsonar.projectKey="${CI_APP_NAMESPACE}_${CI_PROJECT_NAME}" -Dsonar.qualitygate.wait=true -Dillegal-access=warn
+  allow_failure: false
+  only:
+    - /feature/SWDDEV-.*/
+    - develop
+    - master
+
+run_deploy:
+  stage: deploy
+  needs:
+    - build_image
+  script:
+    - export env_name="dev"
+    - export LABEL_ID="1"
+    - bash $PWD/helm/deploy.sh
+  only:
+    - /feature/SWDDEV-.*/
+    - develop
+    - master
+
+run_deploy_test:
+  stage: deploy
+  needs:
+    - run_deploy
+    - build_image
+  script:
+    - export REPLICA_COUNT=2
+    - export env_name="test"
+    - export LABEL_ID="14"
+    - bash $PWD/helm/deploy.sh
+  only:
+    - /feature/SWDDEV-.*/
+    - develop
+    - master
+  when: manual
+
+.chart_ver:
+  stage: deploy
+  script:
+    - bash ./helm/chart_ver.sh
+  needs:
+    - run_deploy_test
+  only:
+    - release
+
+.run_deploy_uat:
+  stage: deploy
+  needs:
+    - run_deploy_test
+    - build_image
+  script:
+    - export env_name="uat"
+    - bash $PWD/helm/deploy.sh
+  only:
+    - develop
+    - master
+  when: manual
+
+run_deploy_prod:
+  stage: deploy
+  needs:
+    - build_image
+    - run_deploy
+  script:
+    - export REPLICA_COUNT=2
+    - export env_name="prod"
+    - export LABEL_ID="15"
+    - bash $PWD/helm/deploy.sh
+  only:
+    - master
+  when: manual

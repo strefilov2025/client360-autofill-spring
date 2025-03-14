@@ -1,0 +1,598 @@
+openapi: 3.0.2
+info:
+  title: Golden Record API
+  description: API golden record implementation
+  version: '{CICD_GITLAB_TAG}'
+paths:
+  /health:
+    get:
+      summary: Health
+      operationId: health_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            text/plain:
+              schema:
+                type: string
+  /api/v1/contact-centr/info-user/{msisdn}:
+    get:
+      summary: Get Info User
+      description: Get info about once user.
+      operationId: get_info_user_api_v1_contact_centr_info_user__msisdn__get
+      parameters:
+        - required: true
+          schema:
+            title: Msisdn
+            type: string
+          name: msisdn
+          in: path
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/search_fms:
+    get:
+      summary: Search Fms
+      description: |-
+        Получить код подразделения по полю "кем выдан".
+
+        Код подразделения выбирается с наибольшим значением score
+        между запросом по полю "кем выдан" и эталонными значением из базы
+        подразделений.
+
+        Parameters
+        ----------
+        issued_by : str
+            Поле "кем выдан" из паспорта
+
+        Returns
+        -------
+        fms : Fms object
+      operationId: search_fms_api_v1_search_fms_get
+      parameters:
+        - required: true
+          schema:
+            title: Issued By
+            type: string
+          name: issued_by
+          in: query
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Fms'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/id_scan/person/{msisdn}:
+    get:
+      summary: Search Scan Id Person
+      description: |-
+        Получить персональные данные для продукта ID Scan.
+
+        Поиск персональных данных выполняется по переданному msisdn.
+
+        Parameters
+        ----------
+        msisdn : str
+            Номер абонента
+
+        Returns
+        -------
+        personal_info : IdScanPerson object
+      operationId: search_scan_id_person_api_v1_id_scan_person__msisdn__get
+      parameters:
+        - required: true
+          schema:
+            title: Msisdn
+            type: string
+          name: msisdn
+          in: path
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdScanPerson'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/mtsb/person/{msisdn}:
+    get:
+      summary: Search Scan Id Person
+      description: |-
+        Получить персональные данные для продукта МТСБ.
+
+        Поиск персональных данных выполняется по переданному msisdn.
+
+        Parameters
+        ----------
+        msisdn : str
+            Номер абонента
+
+        Returns
+        -------
+        personal_info : MtsbPerson object
+      operationId: search_scan_id_person_api_v1_mtsb_person__msisdn__get
+      parameters:
+        - required: true
+          schema:
+            title: Msisdn
+            type: string
+          name: msisdn
+          in: path
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MtsbPerson'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    DocTypeEnum:
+      title: DocTypeEnum
+      enum:
+        - PASSPORT_RU
+      type: string
+      description: An enumeration.
+    Fms:
+      title: Fms
+      required:
+        - fms_code
+        - score
+      type: object
+      properties:
+        fms_code:
+          title: Код подразделения
+          type: string
+          example: 000-000
+        score:
+          title: Значение меры близости
+          maximum: 1
+          minimum: 0
+          type: number
+          description: Насколько близки запрос и эталонное значение
+          example: 0.95
+      description: |-
+        Объект FMS.
+
+        Описывает формат ответа для endpoint'a по запросу
+        кода подразделения по полю "кем выдан" паспорта.
+    FnsCheckFlag:
+      title: FnsCheckFlag
+      enum:
+        - 1
+        - 0
+      type: integer
+      description: An enumeration.
+    HTTPValidationError:
+      title: HTTPValidationError
+      type: object
+      properties:
+        detail:
+          title: Detail
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationError'
+    IdScanPerson:
+      title: IdScanPerson
+      required:
+        - msisdn
+        - fns_check_flag
+      type: object
+      properties:
+        msisdn:
+          title: Номер абонента
+          type: string
+          example: 7XXXXXXXXXX
+        last_name:
+          title: Фамилия
+          type: string
+        first_name:
+          title: Имя
+          type: string
+        mid_name:
+          title: Отчество
+          type: string
+        birthdate:
+          title: Дата рождения
+          type: string
+          format: date
+        doc_type:
+          title: Тип документа
+          allOf:
+            - $ref: '#/components/schemas/DocTypeEnum'
+        doc_series:
+          title: Серия документа
+          type: string
+        doc_number:
+          title: Номер документа
+          type: string
+        inn:
+          title: ИНН
+          type: string
+        fns_check_date:
+          title: Дата проверки в ФНС
+          type: string
+          format: date-time
+        fns_check_flag:
+          title: Флаг проверки абонента через ФНС
+          allOf:
+            - $ref: '#/components/schemas/FnsCheckFlag'
+      description: |-
+        Объект IdScanPerson.
+
+        Описывает формат ответа для endpoint'a по запросу
+        персональных данных для продукта ID Scan.
+    MtsbPerson:
+      title: MtsbPerson
+      type: object
+      properties:
+        doc_type:
+          title: Doc Type
+          type: string
+        doc_series:
+          title: Doc Series
+          type: string
+        doc_number:
+          title: Doc Number
+          type: string
+        doc_issue_dt:
+          title: Doc Issue Dt
+          type: string
+          format: date
+        doc_issue_authority:
+          title: Doc Issue Authority
+          type: string
+        doc_department_code:
+          title: Doc Department Code
+          type: string
+        inn_number:
+          title: Inn Number
+          type: string
+        cnt_sim:
+          title: Cnt Sim
+          type: integer
+        birthdate_dt:
+          title: Birthdate Dt
+          type: string
+          format: date
+        birth_place:
+          title: Birth Place
+          type: string
+        last_name_mdm:
+          title: Last Name Mdm
+          type: string
+        first_name_mdm:
+          title: First Name Mdm
+          type: string
+        mid_name_mdm:
+          title: Mid Name Mdm
+          type: string
+        last_name_spgr:
+          title: Last Name Spgr
+          type: string
+        first_name_spgr:
+          title: First Name Spgr
+          type: string
+        mid_name_spgr:
+          title: Mid Name Spgr
+          type: string
+        is_first_name_equal:
+          title: Is First Name Equal
+          type: integer
+        is_first_last_name_equal:
+          title: Is First Last Name Equal
+          type: integer
+        home_actuality_date:
+          title: Home Actuality Date
+          type: string
+          format: date
+        home_primary_flag:
+          title: Home Primary Flag
+          type: integer
+        home_raw_source:
+          title: Home Raw Source
+          type: string
+        home_postalcode:
+          title: Home Postalcode
+          type: string
+        home_country:
+          title: Home Country
+          type: string
+        home_regiontype:
+          title: Home Regiontype
+          type: string
+        home_region:
+          title: Home Region
+          type: string
+        home_rayontype:
+          title: Home Rayontype
+          type: string
+        home_rayon:
+          title: Home Rayon
+          type: string
+        home_citytype:
+          title: Home Citytype
+          type: string
+        home_city:
+          title: Home City
+          type: string
+        home_settlementtype:
+          title: Home Settlementtype
+          type: string
+        home_settlement:
+          title: Home Settlement
+          type: string
+        home_streettype:
+          title: Home Streettype
+          type: string
+        home_street:
+          title: Home Street
+          type: string
+        home_housenumber:
+          title: Home Housenumber
+          type: string
+        home_korpus:
+          title: Home Korpus
+          type: string
+        home_stroenie:
+          title: Home Stroenie
+          type: string
+        home_flat:
+          title: Home Flat
+          type: string
+        home_kladrcode:
+          title: Home Kladrcode
+          type: string
+        home_okatocode:
+          title: Home Okatocode
+          type: string
+        home_fias_code:
+          title: Home Fias Code
+          type: string
+        home_fias_level:
+          title: Home Fias Level
+          type: string
+        registration_actuality_date:
+          title: Registration Actuality Date
+          type: string
+          format: date
+        registration_primary_flag:
+          title: Registration Primary Flag
+          type: integer
+        registration_raw_source:
+          title: Registration Raw Source
+          type: string
+        registration_postalcode:
+          title: Registration Postalcode
+          type: string
+        registration_country:
+          title: Registration Country
+          type: string
+        registration_regiontype:
+          title: Registration Regiontype
+          type: string
+        registration_region:
+          title: Registration Region
+          type: string
+        registration_rayontype:
+          title: Registration Rayontype
+          type: string
+        registration_rayon:
+          title: Registration Rayon
+          type: string
+        registration_citytype:
+          title: Registration Citytype
+          type: string
+        registration_city:
+          title: Registration City
+          type: string
+        registration_settlementtype:
+          title: Registration Settlementtype
+          type: string
+        registration_settlement:
+          title: Registration Settlement
+          type: string
+        registration_streettype:
+          title: Registration Streettype
+          type: string
+        registration_street:
+          title: Registration Street
+          type: string
+        registration_housenumber:
+          title: Registration Housenumber
+          type: string
+        registration_korpus:
+          title: Registration Korpus
+          type: string
+        registration_stroenie:
+          title: Registration Stroenie
+          type: string
+        registration_flat:
+          title: Registration Flat
+          type: string
+        registration_kladrcode:
+          title: Registration Kladrcode
+          type: string
+        registration_okatocode:
+          title: Registration Okatocode
+          type: string
+        registration_fias_code:
+          title: Registration Fias Code
+          type: string
+        registration_fias_level:
+          title: Registration Fias Level
+          type: string
+        constant_registration_actuality_date:
+          title: Constant Registration Actuality Date
+          type: string
+          format: date
+        constant_registration_primary_flag:
+          title: Constant Registration Primary Flag
+          type: integer
+        constant_registration_raw_source:
+          title: Constant Registration Raw Source
+          type: string
+        constant_registration_postalcode:
+          title: Constant Registration Postalcode
+          type: string
+        constant_registration_country:
+          title: Constant Registration Country
+          type: string
+        constant_registration_regiontype:
+          title: Constant Registration Regiontype
+          type: string
+        constant_registration_region:
+          title: Constant Registration Region
+          type: string
+        constant_registration_rayontype:
+          title: Constant Registration Rayontype
+          type: string
+        constant_registration_rayon:
+          title: Constant Registration Rayon
+          type: string
+        constant_registration_citytype:
+          title: Constant Registration Citytype
+          type: string
+        constant_registration_city:
+          title: Constant Registration City
+          type: string
+        constant_registration_settlementtype:
+          title: Constant Registration Settlementtype
+          type: string
+        constant_registration_settlement:
+          title: Constant Registration Settlement
+          type: string
+        constant_registration_streettype:
+          title: Constant Registration Streettype
+          type: string
+        constant_registration_street:
+          title: Constant Registration Street
+          type: string
+        constant_registration_housenumber:
+          title: Constant Registration Housenumber
+          type: string
+        constant_registration_korpus:
+          title: Constant Registration Korpus
+          type: string
+        constant_registration_stroenie:
+          title: Constant Registration Stroenie
+          type: string
+        constant_registration_flat:
+          title: Constant Registration Flat
+          type: string
+        constant_registration_kladrcode:
+          title: Constant Registration Kladrcode
+          type: string
+        constant_registration_okatocode:
+          title: Constant Registration Okatocode
+          type: string
+        constant_registration_fias_code:
+          title: Constant Registration Fias Code
+          type: string
+        constant_registration_fias_level:
+          title: Constant Registration Fias Level
+          type: string
+      description: |-
+        Объект MtsbPerson.
+
+        Описывает формат ответа для endpoint'a по запросу
+        персональных данных для продукта МТСБ.
+    User:
+      title: User
+      required:
+        - msisdn
+        - is_first_name_equal
+        - is_first_last_name_equal
+      type: object
+      properties:
+        msisdn:
+          title: Msisdn
+          type: string
+        last_name_mdm:
+          title: Last Name Mdm
+          type: string
+        first_name_mdm:
+          title: First Name Mdm
+          type: string
+        mid_name_mdm:
+          title: Mid Name Mdm
+          type: string
+        sex_mdm:
+          title: Sex Mdm
+          type: string
+        age_mdm:
+          title: Age Mdm
+          type: string
+        first_name_spgr:
+          title: First Name Spgr
+          type: string
+        mid_name_spgr:
+          title: Mid Name Spgr
+          type: string
+        last_name_spgr:
+          title: Last Name Spgr
+          type: string
+        age_spgr:
+          title: Age Spgr
+          type: string
+        sex_spgr:
+          title: Sex Spgr
+          type: string
+        is_first_name_equal:
+          title: Is First Name Equal
+          type: integer
+        is_first_last_name_equal:
+          title: Is First Last Name Equal
+          type: integer
+      description: |-
+        msisdn  - номер абонента
+        name - имя владельца
+        surname - фамилия владельца
+        patronymic - отчество владельца
+    ValidationError:
+      title: ValidationError
+      required:
+        - loc
+        - msg
+        - type
+      type: object
+      properties:
+        loc:
+          title: Location
+          type: array
+          items:
+            type: string
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string

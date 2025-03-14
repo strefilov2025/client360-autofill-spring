@@ -1,0 +1,610 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2018 rel. 2 sp1 (x64) (http://www.altova.com) by AIsaev (MTS Bank) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:altova="http://www.altova.com/xml-schema-extensions"
+		   elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:include schemaLocation="!Include/FDX.xsd"/>
+	<xs:element name="Value">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="summ">
+					<xs:annotation>
+						<xs:documentation>Сумма</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="currency">
+					<xs:annotation>
+						<xs:documentation>Валюта</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="EwCustInfoType">
+		<xs:annotation>
+			<xs:documentation>Данные электронного кошелька</xs:documentation>
+		</xs:annotation>
+		<xs:all>
+			<xs:element ref="EwCustId"/>
+		</xs:all>
+	</xs:complexType>
+	<xs:complexType name="CustInfoType">
+		<xs:all>
+			<xs:element ref="CustId"/>
+			<xs:element name="SourceSystem" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Система-источник контрагента</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element ref="CustVKI" minOccurs="0"/>
+			<xs:element ref="ExtCustId" minOccurs="0"/>
+			<xs:element name="MatchRule" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Номер правила идентификации дубликатов</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="MatchScope" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Коэффициент соответствия для правила идентификации дубликатов</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element ref="LegalStatus" minOccurs="0"/>
+			<xs:element name="PersonInfo" type="PersonInfoType" minOccurs="0"/>
+			<xs:element ref="CustCategory" minOccurs="0"/>
+			<xs:element name="SMSMailing" type="xs:boolean" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Признак информационной рассылки СМС</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ComplexAgreemt" type="xs:boolean" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Признак подписания клиентом ДКО</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="IncomeList" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Доходы / расходы клиента</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="IncomeRec" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>Общий регулярный среднемесячный доход / расход</xs:documentation>
+							</xs:annotation>
+							<xs:complexType>
+								<xs:all>
+									<xs:element name="Category" type="xs:string"/>
+									<xs:element name="CurAmt" type="CurrencyAmount"/>
+								</xs:all>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="PropertyList" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Недвижимость клиента</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="PropertyRec" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>Недвижимость</xs:documentation>
+							</xs:annotation>
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="Type" type="xs:string">
+										<xs:annotation>
+											<xs:documentation>Вид нежвижимости</xs:documentation>
+										</xs:annotation>
+									</xs:element>
+									<xs:element name="Addr" type="xs:string" minOccurs="0">
+										<xs:annotation>
+											<xs:documentation>Адрес недвижимости (строкой)</xs:documentation>
+										</xs:annotation>
+									</xs:element>
+									<xs:element name="CurAmt" type="CurrencyAmount">
+										<xs:annotation>
+											<xs:documentation>Текущая рыночная стоимость</xs:documentation>
+										</xs:annotation>
+									</xs:element>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="TransportList" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Транспорт в собственности клиента</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="TransportRec" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>Транспорт</xs:documentation>
+							</xs:annotation>
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="Type" type="xs:string">
+										<xs:annotation>
+											<xs:documentation>Тип транспорта</xs:documentation>
+										</xs:annotation>
+									</xs:element>
+									<xs:element name="Mark" type="xs:string">
+										<xs:annotation>
+											<xs:documentation>Марка</xs:documentation>
+										</xs:annotation>
+									</xs:element>
+									<xs:element name="Model" type="xs:string">
+										<xs:annotation>
+											<xs:documentation>Модель</xs:documentation>
+										</xs:annotation>
+									</xs:element>
+									<xs:element ref="Year"/>
+									<xs:element name="CurAmt" type="CurrencyAmount" minOccurs="0">
+										<xs:annotation>
+											<xs:documentation>Текущая рыночная стоимость</xs:documentation>
+										</xs:annotation>
+									</xs:element>
+									<xs:element name="RegNum" type="xs:string" minOccurs="0">
+										<xs:annotation>
+											<xs:documentation>Регистрационный номер</xs:documentation>
+										</xs:annotation>
+									</xs:element>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="Cust2CustList" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Список взаимосвязей потребителей</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="Cust2CustRec" type="Cust2CustInfoType">
+							<xs:annotation>
+								<xs:documentation>Запись о взаимосвязи потребителя</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element ref="BankInfo" minOccurs="0"/>
+			<xs:element ref="ActualityDt" minOccurs="0"/>
+			<xs:element name="Sources" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Список источников изменения карточки клиента</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="Source" maxOccurs="unbounded">
+							<xs:complexType>
+								<xs:all>
+									<xs:element ref="CustId" minOccurs="0"/>
+									<xs:element ref="ExtCustId" minOccurs="0"/>
+									<xs:element name="SourceSystem" type="xs:string" minOccurs="0">
+										<xs:annotation>
+											<xs:documentation>Система источник</xs:documentation>
+										</xs:annotation>
+									</xs:element>
+								</xs:all>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:all>
+	</xs:complexType>
+	<xs:complexType name="PersonInfoType">
+		<xs:all>
+			<xs:element ref="FullName"/>
+			<xs:element ref="PersonName"/>
+			<xs:element ref="FullNameEn" minOccurs="0"/>
+			<xs:element name="ContactInfo" type="ContactInfoType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Контактная информация</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element ref="PersonNameEn" minOccurs="0"/>
+			<xs:element ref="FullNamePrev" minOccurs="0"/>
+			<xs:element ref="PersonNamePrev" minOccurs="0"/>
+			<xs:element ref="Gender" minOccurs="0"/>
+			<xs:element ref="Birthday" minOccurs="0"/>
+			<xs:element ref="BirthPlace" minOccurs="0"/>
+			<xs:element name="BirthPlaceAddr" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Информация о месте рождения</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:all>
+						<xs:element name="DistrictSrc" type="xs:string">
+							<xs:annotation>
+								<xs:documentation>Историческое наименование района</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="ValidCode" type="xs:string">
+							<xs:annotation>
+								<xs:documentation>Код проверки</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="District" type="xs:string">
+							<xs:annotation>
+								<xs:documentation>Актуальное наименование района</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="RegionSrc" type="xs:string">
+							<xs:annotation>
+								<xs:documentation>Историческое наименование региона</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="CitySrc" type="xs:string">
+							<xs:annotation>
+								<xs:documentation>Историческое наименование города</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element ref="Country"/>
+						<xs:element name="StateProv" type="xs:string">
+							<xs:annotation>
+								<xs:documentation>Актуальное наименование населённого пункта</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="StateProvSrc" type="xs:string">
+							<xs:annotation>
+								<xs:documentation>Историческое наименование населённого пункта</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element ref="QualityCode"/>
+						<xs:element name="ValidExt" type="xs:string">
+							<xs:annotation>
+								<xs:documentation>Расширение валидатора места рождения</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="Region" type="xs:string">
+							<xs:annotation>
+								<xs:documentation>Актуальное наименование региона</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="CountrySrc" type="xs:string">
+							<xs:annotation>
+								<xs:documentation>Историческое наименование страны</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="City" type="xs:string">
+							<xs:annotation>
+								<xs:documentation>Актуальное наименование города</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:all>
+				</xs:complexType>
+			</xs:element>
+			<xs:element ref="MaritalStatus" minOccurs="0"/>
+			<xs:element name="Dependents" type="xs:positiveInteger" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Количество иждевенцев</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="MilitaryStatus" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Отношение к воинской службе</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element ref="TaxId" minOccurs="0"/>
+			<xs:element ref="Resident" minOccurs="0"/>
+			<xs:element name="Occupation" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Информация о стране постоянного пребывания</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:all>
+						<xs:element ref="Country"/>
+						<xs:element ref="CountryName"/>
+					</xs:all>
+				</xs:complexType>
+			</xs:element>
+			<xs:element ref="Employee" minOccurs="0"/>
+			<xs:element ref="CodeDate" minOccurs="0"/>
+			<xs:element ref="Hint" minOccurs="0"/>
+			<xs:element ref="Citizenship" minOccurs="0"/>
+			<xs:element ref="IdentityCards" minOccurs="0"/>
+			<xs:element name="WeddingInfo" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Информация о браке</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="RegDt" type="Date" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation>Дата регистрации брака</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="MarriageContract" type="xs:boolean" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation>Брачный контракт</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="DivisionProperty" type="xs:string" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation>Способ раздела имущества</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="Childs" type="xs:boolean" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation>Имеют совместных детей</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element ref="EmploymentHistoryList" minOccurs="0"/>
+			<xs:element name="FullNameQC" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Код качества ФИО</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="BirthdayQC" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Код качества даты рождения</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="CurResident" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Валютный резидент</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element ref="Channel" minOccurs="0"/>
+			<xs:element name="TaxIdQC" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Код качества ИНН</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="LastNameQC" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Код качества фамилии</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="FirstNameQC" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Код качества имени</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="MiddleNameQC" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Код качества отчества</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="GenderQC" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Код качества пола</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="GenderSrc" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Исходный пол</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="PersonNameSrc" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Исходное ФИО</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:all>
+						<xs:element ref="LastName"/>
+						<xs:element ref="FirstName"/>
+						<xs:element ref="MiddleName" minOccurs="0"/>
+					</xs:all>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="FullNameSrc" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Исходное ФИО конкатенированное</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="DeathDt" type="Date" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Дата смерти</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="VIP" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Признак VIP клиента</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element ref="InsAcctId" minOccurs="0"/>
+			<xs:element name="InsAcctIdQC" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Код качества СНИЛС</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:all>
+	</xs:complexType>
+	<xs:complexType name="ContactInfoType">
+		<xs:sequence>
+			<xs:element ref="PostAddrs" minOccurs="0"/>
+			<xs:choice minOccurs="0">
+				<xs:element ref="PhoneNums"/>
+				<xs:element ref="PhoneNum"/>
+			</xs:choice>
+			<xs:element name="EmailAddrs" minOccurs="0">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="EmailAddr" type="EmailAddrType"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="IdentityCardType">
+		<xs:all>
+			<xs:element name="IdType">
+				<xs:annotation>
+					<xs:documentation>Тип документа (код)</xs:documentation>
+					<xs:appinfo>
+						<altova:exampleValues>
+							<altova:example value="21"/>
+							<altova:example value="MBR_POLIS_OMS"/>
+							<altova:example value="INSURANCE"/>
+							<altova:example value="DRIVER_DOC"/>
+							<altova:example value="Car Registration License"/>
+						</altova:exampleValues>
+					</xs:appinfo>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string"/>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="IdTypeDetail" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Тип документа (расшифровка)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="IdSeries" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Серия документа</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="IdNum" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>Номер документа</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="IssuedBy" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Кем выдан</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="IssuedByCode" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Код подразделения</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="IssueDt" type="Date" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Дата выдачи</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="EffDt" type="DateTime" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Дата изменения документа</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element ref="Primary" minOccurs="0"/>
+			<xs:element name="ExpDt" type="Date" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Дата окончания действия</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element ref="AddInfo" minOccurs="0"/>
+		</xs:all>
+	</xs:complexType>
+	<xs:complexType name="EmploymentHistoryType">
+		<xs:all>
+			<xs:element name="EmploymentStatus" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Статус.
+						Предопределенные значения:
+						Current – текущее место работы
+						Previous – предыдущее место работы
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="OrgInfo" type="OrgInfoType" minOccurs="0"/>
+			<xs:element name="Occupation" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Род занятий</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Income" type="CurrencyAmount" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Сумма дохода</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="JobTitle" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Название должности</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="StartDt" type="Date" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Дата начала</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="EndDt" type="Date" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Дата окончания</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element ref="Term" minOccurs="0"/>
+		</xs:all>
+	</xs:complexType>
+	<xs:complexType name="OrgInfoType">
+		<xs:sequence>
+			<xs:element name="PostAddr" type="FIASAddr_Type" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element ref="Primary" minOccurs="0"/>
+			<xs:element ref="Name"/>
+			<xs:element ref="LegalName" minOccurs="0"/>
+			<xs:element ref="ClassifierId" minOccurs="0"/>
+			<xs:element name="EmplCount" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Количество сотрудников в организации</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ActivityType" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Направление деятельности предприятия</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element ref="IndustId" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Код отрасли
+						(Направление деятельности предприятия)
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Cust2CustInfoType">
+		<xs:all>
+			<xs:element name="LinkType" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>Тип родства</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="LinkTypeCode" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Категория иждивенца</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="PersonInfo" type="PersonInfoType"/>
+			<xs:element name="Employment" type="xs:boolean" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Занятость супруга (-имеет доход, - не имеет доход)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:all>
+	</xs:complexType>
+	<xs:complexType name="EmailAddrType">
+		<xs:all>
+			<xs:element ref="Primary"/>
+			<xs:element ref="ActualityDt" minOccurs="0"/>
+			<xs:element ref="Type" minOccurs="0"/>
+			<xs:element ref="QualityCode" minOccurs="0"/>
+			<xs:element name="Addr" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>e-mail адрес</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:all>
+	</xs:complexType>
+	<xs:element name="QualityCode" type="xs:string">
+		<xs:annotation>
+			<xs:documentation>Код полноты</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="ActualityDt" type="DateTime">
+		<xs:annotation>
+			<xs:documentation>Дата актуальности</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+</xs:schema>

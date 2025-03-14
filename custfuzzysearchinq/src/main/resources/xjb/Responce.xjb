@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<jaxb:bindings
+        version="2.1"
+        xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+        xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+<jaxb:bindings schemaLocation="../xsd/custfuzzysearchinq/CustFuzzySearchInqRs.xsd" node="//xsd:schema">
+<jaxb:bindings node="//xsd:element[@name='FDX']">
+    <jaxb:class  name="CustFuzzySearchInqRs"/>
+</jaxb:bindings>
+</jaxb:bindings>
+
+</jaxb:bindings>

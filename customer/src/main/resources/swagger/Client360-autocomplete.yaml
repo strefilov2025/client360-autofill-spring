@@ -1,0 +1,419 @@
+openapi: "3.0.0"
+info:
+  version: 1.1.0
+  title: Программный интерфейс сервиса client360-autocomplete
+servers:
+  - url: http://localhost:8080/client360-autocomplete/api/v1.1
+paths:
+  /customer:
+    get:
+      summary: получение данных клиента по ОМТ (CD+MDM)
+      operationId: getCustomer
+      tags:
+        - Customer
+      parameters:
+        - name: X-Request-Id
+          in: header
+          description: Уникальный идентификатор запроса
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: phone
+          in: query
+          description: ОМТ
+          required: true
+          schema:
+            type: string
+            nullable: false
+            example: '79012345678'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+        '422':
+          description: Unprocessable Entity
+        '500':
+          description: Internal Server Error
+  /aggregated-customer:
+    get:
+      summary: получение данных клиента по ОМТ (MDM+GR HUB)
+      operationId: getAggregatedCustomer
+      tags:
+        - Customer
+      parameters:
+        - name: X-Request-Id
+          in: header
+          description: Уникальный идентификатор запроса
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: phone
+          in: query
+          description: ОМТ
+          required: true
+          schema:
+            type: string
+            nullable: false
+            example: '79012345678'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+        '422':
+          description: Unprocessable Entity
+        '500':
+          description: Internal Server Error
+  /customer/fuzzy-search:
+    post:
+      summary: нечеткий поиск клиента
+      operationId: fuzzySearch
+      tags:
+        - Customer
+      parameters:
+        - name: X-Request-Id
+          in: header
+          description: Уникальный идентификатор запроса
+          required: false
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerFuzzySearchRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  customer:
+                    $ref: '#/components/schemas/Customer'
+                  sources:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Customer'
+
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+        '422':
+          description: Unprocessable Entity
+        '500':
+          description: Internal Server Error
+components:
+  schemas:
+    Address:
+      type: object
+      properties:
+        addressType:
+          type: string
+          description: Тип адреса
+          readOnly: true
+        fullAddress:
+          type: string
+          description: Полный адрес одной строкой
+        postalCode:
+          type: string
+          description: Индекс
+        countryCode:
+          type: string
+          description: Код страны
+        country:
+          type: string
+          description: Страна
+        region:
+          type: string
+          description: Регион
+        regionType:
+          type: string
+          description: Тип региона
+        rayon:
+          type: string
+          description: Район
+        rayonType:
+          type: string
+          description: Тип района
+        city:
+          type: string
+          description: Город
+        cityType:
+          type: string
+          description: Тип города
+        cityArea:
+          type: string
+          description: Район города
+        cityAreaType:
+          type: string
+          description: Тип района города
+        settlement:
+          type: string
+          description: Населенный пункт
+        settlementType:
+          type: string
+          description: Тип населенного пункта
+        street:
+          type: string
+          description: Улица
+        streetType:
+          type: string
+          description: Тип улицы
+        house:
+          type: string
+          description: Дом
+        stroenie:
+          type: string
+          description: Строение
+        korpus:
+          type: string
+          description: Корпус
+        flat:
+          type: string
+          description: Квартира
+        kladrCode:
+          type: string
+          description: Код КЛАДР
+        fiasCode:
+          type: string
+          description: Код ФИАС
+        fiasLevel:
+          type: string
+          description: Уровень ФИАС
+      description: Адрес
+    Customer:
+      description: Данные клиента
+      properties:
+        fullName:
+          type: string
+          description: Полное имя
+        firstName:
+          type: string
+          description: Имя
+        middleName:
+          type: string
+          description: Отчество
+        lastName:
+          type: string
+          description: Фамилия
+        gender:
+          type: string
+          description: Пол
+          enum:
+            - MALE
+            - FEMALE
+            - UNKNOWN
+          readOnly: true
+        birthDate:
+          type: string
+          description: Дата рождения
+          format: date
+        birthPlace:
+          type: string
+          description: Место рождения
+          readOnly: true
+        deathDate:
+          type: string
+          description: Дата смерти
+          format: date
+          readOnly: true
+        maritalStatus:
+          type: string
+          description: Семейное положение
+          readOnly: true
+        inn:
+          type: string
+          description: ИНН
+          readOnly: true
+        snils:
+          type: string
+          description: СНИЛС
+          readOnly: true
+        vip:
+          type: boolean
+          description: Признак VIP
+          readOnly: true
+        citizenship:
+          type: string
+          description: Гражданство
+          readOnly: true
+        dependantsCount:
+          type: string
+          description: Количество иждивенцев
+          readOnly: true
+        sourceChannel:
+          type: string
+          description: Канал поступления
+          readOnly: true
+        organization:
+          type: string
+          description: Место работы
+          readOnly: true
+        job:
+          type: string
+          description: Полное наименование должности
+          readOnly: true
+        branch:
+          type: string
+          description: Отделение обслуживания
+          readOnly: true
+        taxResident:
+          type: boolean
+          description: Налоговый резидент
+          readOnly: true
+        monetaryResident:
+          type: boolean
+          description: Валютный резидент
+          readOnly: true
+        isFullyIdent:
+          type: boolean
+          description: Признак полной идентификации
+          readOnly: true
+        category:
+          type: string
+          description: Категория
+          readOnly: true
+        identificationLevel:
+          type: string
+          description: Уровень идентификации
+          readOnly: true
+        emails:
+          type: array
+          items:
+            $ref: '#/components/schemas/Email'
+        phones:
+          type: array
+          items:
+            $ref: '#/components/schemas/Phone'
+        documents:
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
+        addresses:
+          type: array
+          items:
+            $ref: '#/components/schemas/Address'
+        extIds:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExtId'
+          readOnly: true
+        isDeleted:
+          type: boolean
+          description: Признак удаленной записи
+          readOnly: true
+        sourceSystem:
+          type: string
+          description: Система-источник записи
+          readOnly: true
+    CustomerFuzzySearchRequest:
+      description: Тело запроса нечеткого поиска
+      allOf:
+        - $ref: '#/components/schemas/Customer'
+        - type: object
+          properties:
+            minMatchScope:
+              type: integer
+              description: Мин. коэффициент соответствия. Если не передан, используется значение по умолчанию
+            includeSourceData:
+              type: array
+              items:
+                type: string
+                enum: [RBO]
+              description: Параметр для включения в ответ исходных данных систем-источников. По умолчанию выключен
+    Document:
+      description: Документ
+      type: object
+      properties:
+        primary:
+          type: boolean
+          description: Признак основного
+          readOnly: true
+        type:
+          type: string
+          description: Тип документа
+        series:
+          type: string
+          description: Серия
+        number:
+          type: string
+          description: Номер
+        issueDate:
+          type: string
+          description: Дата выдачи
+          format: date
+          readOnly: true
+        issuedBy:
+          type: string
+          description: Кем выдан
+          readOnly: true
+        departCode:
+          type: string
+          description: Код подразделения
+          readOnly: true
+        valid:
+          type: boolean
+          description: Признак действительности
+          readOnly: true
+        expiryDate:
+          type: string
+          description: Дата окончания действия
+          format: date
+          readOnly: true
+    Email:
+      description: Электронная почта
+      properties:
+        primary:
+          type: boolean
+          description: Признак основного
+          readOnly: true
+        emailType:
+          type: string
+          description: Тип электронной почты
+          readOnly: true
+        email:
+          type: string
+          description: Адрес электронной почты
+    ExtId:
+      description: Внешний идентификатор клиента
+      type: object
+      properties:
+        system:
+          type: string
+          description: Система
+        id:
+          type: string
+          description: Идентификатор клиента в системе
+    Phone:
+      description: Телефон
+      properties:
+        primary:
+          type: boolean
+          description: Признак основного
+          readOnly: true
+        phoneType:
+          type: string
+          description: Тип телефона
+          readOnly: true
+        number:
+          type: string
+          description: Номер телефона

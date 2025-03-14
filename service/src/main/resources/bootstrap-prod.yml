@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: autocomplete
+  cloud:
+    consul:
+      host:
+      port:
+      config:
+        prefix: ump/client360
+        acl-token:
+        format: yaml
+        data-key: application
+        watch:
+          enabled: false
+    vault:
+      fail-fast: true
+      authentication: APPROLE
+      uri:
+      app-role:
+        role-id:
+        secret-id:
+      kv:
+        backend: client360
+        default-context: client360-autocomplete
+
